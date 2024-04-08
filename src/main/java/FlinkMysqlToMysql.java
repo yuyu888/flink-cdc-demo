@@ -1,24 +1,13 @@
 import libs.ResetValueFunction;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.api.common.time.Time;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.StatementSet;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
-import java.util.concurrent.TimeUnit;
 
 public class FlinkMysqlToMysql {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        // flink程序在开发环境已经运行成功的情况下，部署到独立的flink集群（start-cluster）中，可能遇到不能正常运行的情况。
-//        env.setRestartStrategy(RestartStrategies.noRestart()); // 不重启
-//        env.setRestartStrategy(RestartStrategies.failureRateRestart(
-//                3, // 一个时间段内的最大失败次数
-//                Time.of(5, TimeUnit.MINUTES), // 衡量失败次数的是时间段
-//                Time.of(3, TimeUnit.SECONDS) // 间隔
-//        ));
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
         Configuration configuration = tableEnv.getConfig().getConfiguration();
         configuration.setString("pipeline.name", "mysql2mysql-test");
@@ -65,13 +54,6 @@ public class FlinkMysqlToMysql {
                         + "  'table-name' = 'logtest' "
                         + ")"
         );
-
-
-//        StatementSet statementSet = tableEnv.createStatementSet();
-//        statementSet.addInsertSql(
-//                "insert into logtest select id, uid, operate_type,  ResetValue(opeate_detail), create_time from logtest1 where operate_type=1"
-//        );
-//        statementSet.execute();
 
         // 对数据进行处理并写入数据表b
         tableEnv.executeSql(
